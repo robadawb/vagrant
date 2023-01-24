@@ -1,0 +1,42 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+  config.vm.define "router" do |router|
+    config.vm.provider "virtualbox" do |v|
+      v.name = "router"
+      v.cpus = 1
+      v.memory = 256 
+    end
+    router.vm.box = "centos/7"
+    config.vm.network "private_network", ip: "172.16.100.2", 
+    virtualbox__intnet: "vlan1"
+    config.vm.network "private_network", ip: "172.16.200.2",
+    virtualbox__intnet: "vlan2"
+    config.vm.provision :shell, path: "router/bootstrap.sh"
+  end
+
+  config.vm.define "node100" do |ndw|
+    config.vm.provider "virtualbox" do |v|
+      v.name = "node100"
+      v.cpus = 1
+      v.memory = 256 
+    end
+    ndw.vm.box = "centos/7"
+    config.vm.network "private_network", ip: "172.16.100.3",
+    virtualbox__intnet: "vlan1"
+    config.vm.provision :shell, path: "node100/bootstrap.sh"
+  end
+
+  config.vm.define "node200" do |nde|
+    config.vm.provider "virtualbox" do |v|
+      v.name = "node200"
+      v.cpus = 1
+      v.memory = 256 
+    end
+    nde.vm.box = "centos/7"
+    config.vm.network "private_network", ip: "172.16.200.3",
+    virtualbox__intnet: "vlan2"
+    config.vm.provision :shell, path: "node200/bootstrap.sh"
+  end
+end
