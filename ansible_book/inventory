@@ -1,0 +1,19 @@
+[app]
+10.200.0.2
+10.200.0.3
+
+[db]
+10.200.0.4
+
+[multi:children]
+app
+db
+
+[multi:vars]
+ansible_ssh_user=vagrant
+ansible_ssh_private_key_file=~/.vagrant.d/insecure_private_key
+ansible_ssh_common_args='-o StrictHostKeyChecking=no'
+
+[ssh_connection]
+# Comment out requiretty in /etc/sudoers
+pipelining=True

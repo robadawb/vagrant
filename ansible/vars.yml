@@ -1,0 +1,88 @@
+---
+
+# A simple variable
+- hosts: localhost
+  gather_facts: no
+  vars:
+    world: world
+  tasks:
+  - name: Hello world
+    debug:
+      msg: Hello "{{ world }}"
+
+# A variable list
+- hosts: localhost
+  gather_facts: no
+  vars:
+    continents:
+      - Africa
+      - Americas
+      - Antartica
+      - Asia
+      - Australia
+      - Europe
+
+    # This also works (flow style)
+    continents: [Africa, Americas, Antartica, Asia, Europe, Australia]
+
+  tasks:
+  - name: Hello continent
+    debug:
+      # This will print 'Africa'
+      msg: Hello "{{ continents[0] }}"
+
+  # Iterate through entire list
+  - name: Hello to all the continents
+    debug:
+      msg: Hello "{{ item }}"
+    with_items: "{{ continents }}"
+
+  # Dictionary variables
+- hosts: localhost 
+  gather_facts: no
+  vars:
+    skills:
+      ansible: Ansible
+      python: Python
+      golang: Go
+  
+    # This also works
+    skills: {ansible: Ansible, python: Python, golang: Go}
+  
+  tasks:
+  - name: Print a skill
+    debug:
+      # This will print 'Ansible'
+      msg: "{{ skills['ansible'] }} is a skill"
+      # This wiil also print 'Ansible' 
+      msg: "{{ skills.ansible }} is a skill"
+ 
+  # Iterate through entire dictionary 
+  - name: Print skills dictionary
+    debug:
+      msg: "Key is {{ item.key }} and value is {{ item.value }}"
+    with_dict: "{{ skills }}" 
+ 
+  # Print skills without msg
+  - name: Print skills dictionary sans with_dict
+    debug: 
+      var: skills 
+
+# More fun with lists and dictionaries
+- hosts: localhost
+  gather_facts: no
+  vars:
+    users:
+      martin: 
+        team: SRE 
+        skill: Ansible
+      suzy:
+        team: Apps 
+        skill: Go
+
+# This is broken...
+#  tasks:
+#    - name: Print users 
+#      debug:
+#        msg: "User {{ item.key }} is {{ item.value.name }} ({{ item.value.skill }})"
+#      loop: "{{ lookup('dict', users) }}"

@@ -1,0 +1,68 @@
+---
+
+- hosts: all
+  become: yes
+
+  vars:
+    index_html: '/usr/share/nginx/html/index.html' 
+
+  tasks:
+    - name: Say hello
+      debug: msg="Hello Ansible"      
+
+    - name: Print facts
+      debug: var=ansible_os_family 
+
+    - name: Who is logged in?
+      command: who
+      register: result
+      
+    - debug: var=result
+    - debug: var=result.stdout
+
+    - name: Upgrade packages
+      when: ansible_os_family == "RedHat"
+      yum: name=* state=latest update_cache=true   
+      notify:
+        - Reboot server
+
+    - name: Install ntp
+      include_tasks: ntp.yml
+
+    - name: Install nginx
+      yum:
+        name: nginx
+        state: installed
+        update_cache: true
+
+    - name: Create index.html
+      file:
+        path: '{{ index_html }}'
+        mode: 644
+        state: file
+        owner: nginx
+        group: nginx
+      notify:
+        - Reload nginx 
+
+    - name: Install git
+      yum: name=git state=present
+
+    - name: Remove git
+      yum: name=git state=absent
+
+    - name: Install packages
+      yum: name= state=latest
+      with_items:
+      - g++
+      - git
+      - ntp
+
+  handlers:
+    - name: Reboot server
+      reboot:
+
+    - name: Reload nginx
+      service:
+        name: nginx
+        state: reloaded

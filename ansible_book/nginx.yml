@@ -1,0 +1,25 @@
+---
+
+- hosts: multi
+  become: yes
+
+  tasks:
+    - name: Install nginx 
+      yum: name={{ item }} state=present
+      with_items:
+        - nginx 
+    - name: Configure nginx 
+      copy: 
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+        owner: root
+        group: root
+        mode: 0644
+      with_items:
+        - src: "nginx.conf"
+          dest: "/etc/nginx/nginx.conf"
+    - name: Start nginx 
+      service: 
+        name: nginx 
+        state: started 
+        enabled: yes
